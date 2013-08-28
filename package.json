@@ -1,0 +1,24 @@
+{
+  "name": "Raw Socket",
+  "types": ["module"],
+  "version": "1.4",
+  "homepage": "http://github.com/savoirfairelinux/mod-rawsocket",
+  "author": "Sébastien Coavoux",
+  "description": "Export event to a socket in order to generate reports",
+  "contributors": [
+    {
+      "name": "Sébastien Coavoux",
+      "email": "sebastien.coavoux@savoirfairelinux.com"
+    }
+  ],
+  "repository": "https://github.com/savoirfairelinux/mod-rawsocket",
+  "keywords": [
+    "module",
+    "broker",
+    "reporting",
+  ],
+  "dependencies": {
+    "shinken": ">=1.4"
+  },
+  "license": "AGPL"
+}
