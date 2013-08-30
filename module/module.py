@@ -63,12 +63,13 @@ class RawSocket_broker(BaseModule):
         self.port = int(getattr(modconf, 'port', '9514'))
         self.data = getattr(modconf, 'data', 'default')
         self.tick_limit = int(getattr(modconf, 'tick_limit', '3600'))
+        # Buffer max size in bytes
+        self.max_buffer_size = int(getattr(modconf, 'max_buffer_size', '60000'))
         self.buffer = []
         self.ticks = 0
         # Cache for business_impact
         self.dict_business_impact = {}
-        # Buffer max size in bytes
-        self.max_buffer_size = 60000
+
         # Number of lines to delete when the buffer is full
         self.lines_deleted = 30
         # For log brok only, to select only some event to send to socket.
