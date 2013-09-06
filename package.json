@@ -1,5 +1,5 @@
 {
-  "name": "Raw Socket",
+  "name": "raw-socket",
   "types": ["module"],
   "version": "1.4",
   "homepage": "http://github.com/savoirfairelinux/mod-rawsocket",
