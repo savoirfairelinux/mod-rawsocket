@@ -86,58 +86,73 @@ class RawSocketTemplate(ShinkenTest):
         svc.checks_in_progress = []
         svc.act_depend_of = []  # no hostchecks on critical checkresults
 
+        # Get the Pending => UP lines
         self.scheduler_loop(1, [[host, 0, 'UP']], do_sleep=True, sleep_time=0.1)
         self.scheduler_loop(1, [[svc, 0, 'OK']], do_sleep=True, sleep_time=0.1)
-
-        # Service
-        self.scheduler_loop(1, [[svc, 2, 'BAD']], do_sleep=True, sleep_time=0.1)
-        #import pdb;pdb.set_trace()
         self.update_broker()
-
         self.raw_socket.hook_tick("DUMMY")
-
-        pattern_out = 'event_type="SERVICE ALERT" hostname="test_host_0" '\
-                      'servicename="test_ok_0" state="CRITICAL" business_impact="5" output="BAD'
-
+        output = self.conn_serv.recv(1024)
+        lines = output.splitlines()
+        pattern_out0 = 'event_type="host_check_result" hostname="test_host_0" state="UP" ' \
+                       'last_state="PENDING" state_type="HARD" last_state_type="HARD" ' \
+                       'business_impact="5" last_hard_state_change="[0-9]{10}" output="UP'
+        pattern_out1 = 'event_type="service_check_result" hostname="test_host_0" servicename="test_ok_0" ' \
+                       'state="OK" last_state="PENDING" state_type="HARD" last_state_type="HARD" ' \
+                       'business_impact="5" last_hard_state_change="[0-9]{10}" output="OK'
         #import pdb;pdb.set_trace()
+        self.assert_(re.search(pattern_out0, lines[0]) is not None)
+        self.assert_(re.search(pattern_out1, lines[1]) is not None)
 
-        if mod == "all":
-            output = self.conn_serv.recv(1024)
-            #print pattern_out, output
-            self.assert_(re.search(pattern_out, output) is not None)
-        else:
-            self.assert_(self.raw_socket.buffer == [])
-
+        # Service 1st alert + check_result
         self.scheduler_loop(1, [[svc, 2, 'BAD']], do_sleep=True, sleep_time=0.1)
         self.update_broker()
         self.raw_socket.hook_tick("DUMMY")
         output = self.conn_serv.recv(1024)
-
-        pattern_out1 = 'event_type="SERVICE ALERT" hostname="test_host_0" '\
+        lines = output.splitlines()
+        pattern_out0 = 'event_type="SERVICE ALERT" hostname="test_host_0" '\
                        'servicename="test_ok_0" state="CRITICAL" business_impact="5" output="BAD'
+        pattern_out2 = 'event_type="service_check_result" hostname="test_host_0" ' \
+                       'servicename="test_ok_0" state="CRITICAL" last_state="OK" state_type="SOFT" ' \
+                       'last_state_type="HARD" business_impact="5" last_hard_state_change="[0-9]{10}" ' \
+                       'output="BAD'
+        #import pdb;pdb.set_trace()
+        self.assert_(re.search(pattern_out0, lines[0]) is not None)
+        self.assert_(re.search(pattern_out2, lines[2]) is not None)
 
+        # Service 2nd alert + notif
+        self.scheduler_loop(1, [[svc, 2, 'BAD']], do_sleep=True, sleep_time=0.1)
+        self.update_broker()
+        self.raw_socket.hook_tick("DUMMY")
+        output = self.conn_serv.recv(1024)
         # line0 = service alert, line1 empty, line2=check result, line3 service notif
         lines = output.splitlines()
-
-        self.assert_(re.search(pattern_out, lines[0]))
-
+        pattern_out0 = 'event_type="SERVICE ALERT" hostname="test_host_0" '\
+                       'servicename="test_ok_0" state="CRITICAL" business_impact="5" output="BAD'
+        pattern_out2 = 'event_type="service_check_result" hostname="test_host_0" ' \
+                       'servicename="test_ok_0" state="CRITICAL" last_state="CRITICAL" state_type="HARD" ' \
+                       'last_state_type="SOFT" business_impact="5" ' \
+                       'last_hard_state_change="[0-9]{10}" output="BAD'
+        pattern_out3 = 'event_type="SERVICE NOTIFICATION" contact="test_contact" '\
+                       'hostname="test_host_0" servicename="test_ok_0" ntype="CRITICAL" '\
+                       'command="notify-service" business_impact="5" output="BAD'
+        #import pdb;pdb.set_trace()
+        self.assert_(re.search(pattern_out0, lines[0]) is not None)
+        # check result with different type is not filtered :)
+        self.assert_(re.search(pattern_out2, lines[2]))
         if mod == "all":
-            pattern_out2 = 'event_type="SERVICE NOTIFICATION" contact="test_contact" '\
-                           'hostname="test_host_0" servicename="test_ok_0" ntype="CRITICAL" '\
-                           'command="notify-service" business_impact="5" output="BAD'
-            #print pattern_out2, lines[2]
-            self.assert_(re.search(pattern_out2, lines[3]))
+            # notification that is not an ack is filtered
+            self.assert_(re.search(pattern_out3, lines[3]))
 
-        # Host
+        # Host 1st alert
         self.scheduler_loop(1, [[host, 2, 'BAD']], do_sleep=True, sleep_time=0.1)
         self.update_broker()
         self.raw_socket.hook_tick("DUMMY")
         output = self.conn_serv.recv(1024)
-
-        pattern_out = 'event_type="HOST ALERT" hostname="test_host_0" '\
-                      'state="DOWN" business_impact="5" output="BAD'
-        #print pattern_out, output
-        self.assert_(re.search(pattern_out, output) is not None)
+        lines = output.splitlines()
+        pattern_out0 = 'event_type="HOST ALERT" hostname="test_host_0" '\
+                       'state="DOWN" business_impact="5" output="BAD'
+        #import pdb;pdb.set_trace()
+        self.assert_(re.search(pattern_out0, lines[0]) is not None)
 
         # Hard is 3 attempt, we just ignore the second try
         self.scheduler_loop(1, [[host, 2, 'BAD']], do_sleep=True, sleep_time=0.1)
@@ -150,15 +165,13 @@ class RawSocketTemplate(ShinkenTest):
         self.raw_socket.hook_tick("DUMMY")
         output = self.conn_serv.recv(1024)
         lines = output.splitlines()
-
-        pattern_out1 = 'event_type="HOST ALERT" hostname="test_host_0" '\
+        pattern_out0 = 'event_type="HOST ALERT" hostname="test_host_0" '\
                        'state="DOWN" business_impact="5" output="BAD'
-        self.assert_(re.search(pattern_out1, lines[0]) is not None)
-
+        pattern_out2 = 'event_type="HOST NOTIFICATION" contact="test_contact" '\
+                       'hostname="test_host_0" ntype="DOWN" command="notify-host" '\
+                       'business_impact="5" output="BAD'
+        self.assert_(re.search(pattern_out0, lines[0]) is not None)
         if mod == "all":
-            pattern_out2 = 'event_type="HOST NOTIFICATION" contact="test_contact" '\
-                           'hostname="test_host_0" ntype="DOWN" command="notify-host"'\
-                           ' business_impact="5" output="BAD'
             self.assert_(re.search(pattern_out2, lines[3]) is not None)
 
 

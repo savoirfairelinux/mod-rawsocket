@@ -175,7 +175,7 @@ class RawSocket_broker(BaseModule):
             if name in self.parsing_properties.keys():
                 t, new_line = self.format_output(line, **self.parsing_properties[name])
                 t = t[1:]
-                formatted = datetime.datetime.fromtimestamp(int(t)).strftime('%Y-%m-%dT%H:%M')
+                formatted = datetime.datetime.fromtimestamp(int(t)).strftime('%Y-%m-%dT%H:%M:%S')
                 tz = str.format('{0:+06.2f}', float(time.timezone) / 3600).replace('.', ':')
                 isodate = formatted + tz
                 hostname = socket.gethostname()
@@ -280,16 +280,19 @@ class RawSocket_broker(BaseModule):
         pass
 
     def manage_host_check_result_brok(self, b):
-        if self.data == 'all':
-            data = b.data
+        data = b.data
+        if self.data == 'all' \
+                or data['last_state'] != data['state'] \
+                or data['last_state_type'] != data['state_type']:
             # get the business_impact previously found and add it to the brok
             data["business_impact"] = self.dict_business_impact[data["host_name"]]
             new_line = 'event_type="host_check_result" ' \
                        'hostname="%(host_name)s" state="%(state)s" last_state="%(last_state)s" ' \
+                       'state_type="%(state_type)s" last_state_type="%(last_state_type)s" ' \
                        'business_impact="%(business_impact)d" ' \
                        'last_hard_state_change="%(last_hard_state_change)s" output="%(output)s"' \
                        % data
-            formatted = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M')
+            formatted = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
             tz = str.format('{0:+06.2f}', float(time.timezone) / 3600).replace('.', ':')
             isodate = formatted + tz
             hostname = socket.gethostname()
@@ -301,17 +304,20 @@ class RawSocket_broker(BaseModule):
         pass
 
     def manage_service_check_result_brok(self, b):
-        if self.data == 'all':
-            data = b.data
+        data = b.data
+        if self.data == 'all' \
+                or data['last_state'] != data['state'] \
+                or data['last_state_type'] != data['state_type']:
             # get the business_impact previously found and add it to the brok
             key = data["host_name"] + "::" + data["service_description"]
             data["business_impact"] = self.dict_business_impact[key]
             new_line = 'event_type="service_check_result" hostname="%(host_name)s" ' \
-                       'servicename="%(service_description)s" state="%(state)s" ' \
-                       'business_impact="%(business_impact)d" last_state="%(last_state)s" ' \
+                       'servicename="%(service_description)s" state="%(state)s" last_state="%(last_state)s"' \
+                       ' state_type="%(state_type)s" last_state_type="%(last_state_type)s" ' \
+                       'business_impact="%(business_impact)d" ' \
                        'last_hard_state_change="%(last_hard_state_change)s" output="%(output)s"' \
                        % data
-            formatted = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M')
+            formatted = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
             tz = str.format('{0:+06.2f}', float(time.timezone) / 3600).replace('.', ':')
             isodate = formatted + tz
             hostname = socket.gethostname()
