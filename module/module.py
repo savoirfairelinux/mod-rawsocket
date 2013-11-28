@@ -79,8 +79,10 @@ class RawSocket_broker(BaseModule):
                            ("service_alert", "SOFT"),
                            ("host_downtime_alert", "STARTED"),
                            ("host_downtime_alert", "STOPPED"),
+                           ("host_downtime_alert", "CANCELLED"),
                            ("service_downtime_alert", "STARTED"),
                            ("service_downtime_alert", "STOPPED"),
+                           ("service_downtime_alert", "CANCELLED"),
                            ("host_notification", "ACKNOWLEDGEMENT"),
                            ("service_notification", "ACKNOWLEDGEMENT"),
                            ("comment", None)]
@@ -187,8 +189,8 @@ class RawSocket_broker(BaseModule):
             else:
                 logger.info("Can't parse event : %s. Skipping" % name)
         else:
-            logger.info("Unhandled event : %s. I skipped the following line : %s"
-                        % (name, etype))
+            logger.info("Unhandled (event, type) : (%s, %s). I skipped the following line : %s"
+                        % (name, etype, line))
 
     # Matches lines with pattern to define the event
     # A log brok has arrived, we UPDATE data info with this
