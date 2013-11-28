@@ -176,12 +176,13 @@ class RawSocket_broker(BaseModule):
                 t, new_line = self.format_output(line, **self.parsing_properties[name])
                 t = t[1:]
                 formatted = datetime.datetime.fromtimestamp(int(t)).strftime('%Y-%m-%dT%H:%M:%S')
-                tz = str.format('{0:+06.2f}', float(time.timezone) / 3600).replace('.', ':')
+                tz = str.format('{0:05.2f}', float(time.timezone) / 3600).replace('.', ':')
+                tz = '-' + tz if time.timezone > 0 else '+' + tz
                 isodate = formatted + tz
                 hostname = socket.gethostname()
                 self.buffer.append("<0>" + isodate + " " + hostname + " " +
                                    socket.gethostbyname(hostname) + " " +
-                                   self.name + "[0]: " + new_line)
+                                   self.name + "[0]: timestamp=" + str(t) + " " + new_line)
 
             else:
                 logger.info("Can't parse event : %s. Skipping" % name)
