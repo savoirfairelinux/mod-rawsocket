@@ -289,7 +289,7 @@ class RawSocket_broker(BaseModule):
                 or data['last_state_type'] != data['state_type']:
             # get the business_impact previously found and add it to the brok
             data["business_impact"] = self.dict_business_impact[data["host_name"]]
-            new_line = 'event_type="host_check_result" ' \
+            new_line = 'event_type="HOST CHECK RESULT" ' \
                        'hostname="%(host_name)s" state="%(state)s" last_state="%(last_state)s" ' \
                        'state_type="%(state_type)s" last_state_type="%(last_state_type)s" ' \
                        'business_impact="%(business_impact)d" ' \
@@ -314,7 +314,7 @@ class RawSocket_broker(BaseModule):
             # get the business_impact previously found and add it to the brok
             key = data["host_name"] + "::" + data["service_description"]
             data["business_impact"] = self.dict_business_impact[key]
-            new_line = 'event_type="service_check_result" hostname="%(host_name)s" ' \
+            new_line = 'event_type="SERVICE CHECK RESULT" hostname="%(host_name)s" ' \
                        'servicename="%(service_description)s" state="%(state)s" last_state="%(last_state)s"' \
                        ' state_type="%(state_type)s" last_state_type="%(last_state_type)s" ' \
                        'business_impact="%(business_impact)d" ' \
