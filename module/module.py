@@ -270,11 +270,40 @@ class RawSocket_broker(BaseModule):
     def manage_initial_host_status_brok(self, b):
         # Remember initial business_impact value
         self.dict_business_impact[b.data["host_name"]] = b.data["business_impact"]
+        # Send Initial Status
+        key = data["host_name"] + "::" + data["service_description"]
+        data["business_impact"] = self.dict_business_impact[key]
+        new_line = 'event_type="INITIAL HOST STATUS" hostname="%(host_name)s" ' \
+                   'state="%(state)s" ' \
+                   'business_impact="%(business_impact)d" ' \
+                   % data
+        formatted = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+        tz = str.format('{0:+06.2f}', float(time.timezone) / 3600).replace('.', ':')
+        isodate = formatted + tz
+        hostname = socket.gethostname()
+        self.buffer.append("<0>" + isodate + " " + hostname + " " +
+                           socket.gethostbyname(hostname) + " " +
+                           self.name + "[0]: " + new_line)
 
     def manage_initial_service_status_brok(self, b):
         # Remember initial business_impact value
         key = b.data["host_name"] + "::" + b.data["service_description"]
         self.dict_business_impact[key] = b.data["business_impact"]
+        # Send Initial Status
+        key = data["host_name"] + "::" + data["service_description"]
+        data["business_impact"] = self.dict_business_impact[key]
+        new_line = 'event_type="INITIAL SERVICE STATUS" hostname="%(host_name)s" ' \
+                   'servicename="%(service_description)s" state="%(state)s" ' \
+                   'business_impact="%(business_impact)d" ' \
+                   % data
+        formatted = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+        tz = str.format('{0:+06.2f}', float(time.timezone) / 3600).replace('.', ':')
+        isodate = formatted + tz
+        hostname = socket.gethostname()
+        self.buffer.append("<0>" + isodate + " " + hostname + " " +
+                           socket.gethostbyname(hostname) + " " +
+                           self.name + "[0]: " + new_line)
+
 
     def manage_initial_hostgroup_status_brok(self, b):
         pass
