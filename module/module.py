@@ -268,11 +268,10 @@ class RawSocket_broker(BaseModule):
         pass
 
     def manage_initial_host_status_brok(self, b):
+        data = b.data
         # Remember initial business_impact value
-        self.dict_business_impact[b.data["host_name"]] = b.data["business_impact"]
+        self.dict_business_impact[b.data["host_name"]] = data["business_impact"]
         # Send Initial Status
-        key = data["host_name"] + "::" + data["service_description"]
-        data["business_impact"] = self.dict_business_impact[key]
         new_line = 'event_type="INITIAL HOST STATUS" hostname="%(host_name)s" ' \
                    'state="%(state)s" ' \
                    'business_impact="%(business_impact)d" ' \
@@ -286,12 +285,11 @@ class RawSocket_broker(BaseModule):
                            self.name + "[0]: " + new_line)
 
     def manage_initial_service_status_brok(self, b):
+        data = b.data
         # Remember initial business_impact value
-        key = b.data["host_name"] + "::" + b.data["service_description"]
-        self.dict_business_impact[key] = b.data["business_impact"]
-        # Send Initial Status
         key = data["host_name"] + "::" + data["service_description"]
-        data["business_impact"] = self.dict_business_impact[key]
+        self.dict_business_impact[key] = data["business_impact"]
+        # Send Initial Status
         new_line = 'event_type="INITIAL SERVICE STATUS" hostname="%(host_name)s" ' \
                    'servicename="%(service_description)s" state="%(state)s" ' \
                    'business_impact="%(business_impact)d" ' \
