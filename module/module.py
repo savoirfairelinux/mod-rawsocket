@@ -215,7 +215,7 @@ class RawSocket_broker(BaseModule):
                 self.parse_event(name, groups[-1], line)
                 return
 
-        logger.debug("Unmanaged log line : %s" % line)
+        logger.debug("[RawSocket broker] Unmanaged log line : %s" % line)
 
     def hook_tick(self, brok):
         """Each second the broker calls the hook_tick function
@@ -236,7 +236,7 @@ class RawSocket_broker(BaseModule):
 
         # Real memory size
         if sum(x.__sizeof__() for x in self.buffer) > self.max_buffer_size:
-            logger.debug("[RawSocket broker]Buffer size exceeded. I delete %d lines"
+            logger.debug("[RawSocket broker] Buffer size exceeded. I delete %d lines"
                          % self.lines_deleted)
             self.buffer = self.buffer[self.lines_deleted:]
 
@@ -270,19 +270,20 @@ class RawSocket_broker(BaseModule):
     def manage_initial_host_status_brok(self, b):
         data = b.data
         # Remember initial business_impact value
-        self.dict_business_impact[b.data["host_name"]] = data["business_impact"]
+        self.dict_business_impact[data["host_name"]] = data["business_impact"]
         # Send Initial Status
         new_line = 'event_type="INITIAL HOST STATUS" hostname="%(host_name)s" ' \
-                   'state="%(state)s" ' \
+                   'state="%(state)s" in_scheduled_downtime="%(in_scheduled_downtime)s" ' \
                    'business_impact="%(business_impact)d" ' \
                    % data
-        formatted = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+        t = datetime.datetime.now()
+        formatted = t.strftime('%Y-%m-%dT%H:%M:%S')
         tz = str.format('{0:+06.2f}', float(time.timezone) / 3600).replace('.', ':')
         isodate = formatted + tz
         hostname = socket.gethostname()
         self.buffer.append("<0>" + isodate + " " + hostname + " " +
                            socket.gethostbyname(hostname) + " " +
-                           self.name + "[0]: " + new_line)
+                           self.name + "[0]: timestamp=" + str(t) + " " + new_line)
 
     def manage_initial_service_status_brok(self, b):
         data = b.data
@@ -292,15 +293,16 @@ class RawSocket_broker(BaseModule):
         # Send Initial Status
         new_line = 'event_type="INITIAL SERVICE STATUS" hostname="%(host_name)s" ' \
                    'servicename="%(service_description)s" state="%(state)s" ' \
-                   'business_impact="%(business_impact)d" ' \
+                   'in_scheduled_downtime="%(in_scheduled_downtime)s" business_impact="%(business_impact)d" ' \
                    % data
-        formatted = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+        t = datetime.datetime.now()
+        formatted = t.strftime('%Y-%m-%dT%H:%M:%S')
         tz = str.format('{0:+06.2f}', float(time.timezone) / 3600).replace('.', ':')
         isodate = formatted + tz
         hostname = socket.gethostname()
         self.buffer.append("<0>" + isodate + " " + hostname + " " +
                            socket.gethostbyname(hostname) + " " +
-                           self.name + "[0]: " + new_line)
+                           self.name + "[0]: timestamp=" + str(t) + " " + new_line)
 
 
     def manage_initial_hostgroup_status_brok(self, b):
@@ -322,13 +324,14 @@ class RawSocket_broker(BaseModule):
                        'business_impact="%(business_impact)d" ' \
                        'last_hard_state_change="%(last_hard_state_change)s" output="%(output)s"' \
                        % data
-            formatted = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+            t = datetime.datetime.now()
+            formatted = t.strftime('%Y-%m-%dT%H:%M:%S')
             tz = str.format('{0:+06.2f}', float(time.timezone) / 3600).replace('.', ':')
             isodate = formatted + tz
             hostname = socket.gethostname()
             self.buffer.append("<0>" + isodate + " " + hostname + " " +
                                socket.gethostbyname(hostname) + " " +
-                               self.name + "[0]: " + new_line)
+                               self.name + "[0]: timestamp=" + str(t) + " " + new_line)
 
     def manage_host_next_schedule_brok(self, b):
         pass
@@ -347,13 +350,14 @@ class RawSocket_broker(BaseModule):
                        'business_impact="%(business_impact)d" ' \
                        'last_hard_state_change="%(last_hard_state_change)s" output="%(output)s"' \
                        % data
-            formatted = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+            t = datetime.datetime.now()
+            formatted = t.strftime('%Y-%m-%dT%H:%M:%S')
             tz = str.format('{0:+06.2f}', float(time.timezone) / 3600).replace('.', ':')
             isodate = formatted + tz
             hostname = socket.gethostname()
             self.buffer.append("<0>" + isodate + " " + hostname + " " +
                                socket.gethostbyname(hostname) + " " +
-                               self.name + "[0]: " + new_line)
+                               self.name + "[0]: timestamp=" + str(t) + " " + new_line)
 
     def manage_service_next_schedule_brok(self, b):
         pass
