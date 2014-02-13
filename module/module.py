@@ -182,9 +182,8 @@ class RawSocket_broker(BaseModule):
                 tz = '-' + tz if time.timezone > 0 else '+' + tz
                 isodate = formatted + tz
                 hostname = socket.gethostname()
-                self.buffer.append("<0>" + isodate + " " + hostname + " " +
-                                   socket.gethostbyname(hostname) + " " +
-                                   self.name + "[0]: timestamp=" + str(t) + " " + new_line)
+                self.buffer.append("<0>%s %s %s %s[0]: timestamp=%s %s" %
+                                   (isodate, hostname, socket.gethostbyname(hostname), self.name, t, new_line))
 
             else:
                 logger.info("Can't parse event : %s. Skipping" % name)
@@ -276,14 +275,13 @@ class RawSocket_broker(BaseModule):
                    'state="%(state)s" in_scheduled_downtime="%(in_scheduled_downtime)s" ' \
                    'business_impact="%(business_impact)d" ' \
                    % data
-        t = datetime.datetime.now()
-        formatted = t.strftime('%Y-%m-%dT%H:%M:%S')
+        t = time.time()
+        formatted = time.strftime('%Y-%m-%dT%H:%M:%S')
         tz = str.format('{0:+06.2f}', float(time.timezone) / 3600).replace('.', ':')
         isodate = formatted + tz
         hostname = socket.gethostname()
-        self.buffer.append("<0>" + isodate + " " + hostname + " " +
-                           socket.gethostbyname(hostname) + " " +
-                           self.name + "[0]: timestamp=" + str(t) + " " + new_line)
+        self.buffer.append("<0>%s %s %s %s[0]: timestamp=%d %s" %
+                           (isodate, hostname, socket.gethostbyname(hostname), self.name, t, new_line))
 
     def manage_initial_service_status_brok(self, b):
         data = b.data
@@ -295,14 +293,13 @@ class RawSocket_broker(BaseModule):
                    'servicename="%(service_description)s" state="%(state)s" ' \
                    'in_scheduled_downtime="%(in_scheduled_downtime)s" business_impact="%(business_impact)d" ' \
                    % data
-        t = datetime.datetime.now()
-        formatted = t.strftime('%Y-%m-%dT%H:%M:%S')
+        t = time.time()
+        formatted = time.strftime('%Y-%m-%dT%H:%M:%S')
         tz = str.format('{0:+06.2f}', float(time.timezone) / 3600).replace('.', ':')
         isodate = formatted + tz
         hostname = socket.gethostname()
-        self.buffer.append("<0>" + isodate + " " + hostname + " " +
-                           socket.gethostbyname(hostname) + " " +
-                           self.name + "[0]: timestamp=" + str(t) + " " + new_line)
+        self.buffer.append("<0>%s %s %s %s[0]: timestamp=%d %s" %
+                           (isodate, hostname, socket.gethostbyname(hostname), self.name, t, new_line))
 
 
     def manage_initial_hostgroup_status_brok(self, b):
@@ -324,14 +321,13 @@ class RawSocket_broker(BaseModule):
                        'business_impact="%(business_impact)d" ' \
                        'last_hard_state_change="%(last_hard_state_change)s" output="%(output)s"' \
                        % data
-            t = datetime.datetime.now()
-            formatted = t.strftime('%Y-%m-%dT%H:%M:%S')
+            t = time.time()
+            formatted = time.strftime('%Y-%m-%dT%H:%M:%S')
             tz = str.format('{0:+06.2f}', float(time.timezone) / 3600).replace('.', ':')
             isodate = formatted + tz
             hostname = socket.gethostname()
-            self.buffer.append("<0>" + isodate + " " + hostname + " " +
-                               socket.gethostbyname(hostname) + " " +
-                               self.name + "[0]: timestamp=" + str(t) + " " + new_line)
+            self.buffer.append("<0>%s %s %s %s[0]: timestamp=%d %s" %
+                               (isodate, hostname, socket.gethostbyname(hostname), self.name, t, new_line))
 
     def manage_host_next_schedule_brok(self, b):
         pass
@@ -350,14 +346,13 @@ class RawSocket_broker(BaseModule):
                        'business_impact="%(business_impact)d" ' \
                        'last_hard_state_change="%(last_hard_state_change)s" output="%(output)s"' \
                        % data
-            t = datetime.datetime.now()
-            formatted = t.strftime('%Y-%m-%dT%H:%M:%S')
+            t = time.time()
+            formatted = time.strftime('%Y-%m-%dT%H:%M:%S')
             tz = str.format('{0:+06.2f}', float(time.timezone) / 3600).replace('.', ':')
             isodate = formatted + tz
             hostname = socket.gethostname()
-            self.buffer.append("<0>" + isodate + " " + hostname + " " +
-                               socket.gethostbyname(hostname) + " " +
-                               self.name + "[0]: timestamp=" + str(t) + " " + new_line)
+            self.buffer.append("<0>%s %s %s %s[0]: timestamp=%d %s" %
+                               (isodate, hostname, socket.gethostbyname(hostname), self.name, t, new_line))
 
     def manage_service_next_schedule_brok(self, b):
         pass

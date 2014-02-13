@@ -5,8 +5,8 @@
 from  shinken_test import *
 import socket
 
-define_modulesdir("../modules")
-modulesctx.set_modulesdir(modulesdir)
+define_modules_dir("../modules")
+modulesctx.set_modulesdir(modules_dir)
 
 # Special Livestatus module opening since the module rename
 #from shinken.modules.livestatus import module as livestatus_broker
@@ -40,7 +40,7 @@ class RawSocketTemplate(ShinkenTest):
         self.sched.brokers['Default-Broker']['broks'] = {}
 
     def setUp(self, modconf=None):
-        self.setup_with_file('etc/nagios_1r_1h_1s.cfg')
+        self.setup_with_file('etc/shinken_1r_1h_1s.cfg')
         self.raw_socket = RawSocket_broker(modconf)
         print "Cleaning old broks?"
         self.sched.conf.skip_initial_broks = False
@@ -62,8 +62,8 @@ class RawSocketTemplate(ShinkenTest):
         self.conn_serv, _ = self.sock_serv.accept()
 
     def tearDown(self):
-        if os.path.exists('var/nagios.log'):
-            os.remove('var/nagios.log')
+        if os.path.exists('var/shinken.log'):
+            os.remove('var/shinken.log')
         if os.path.exists('var/retention.dat'):
             os.remove('var/retention.dat')
         if os.path.exists('var/status.dat'):
@@ -93,25 +93,25 @@ class RawSocketTemplate(ShinkenTest):
         self.raw_socket.hook_tick("DUMMY")
         output = self.conn_serv.recv(1024)
         lines = output.splitlines()
-        pattern_out0 = 'event_type="host_check_result" hostname="test_host_0" state="UP" ' \
+        pattern_out0 = 'event_type="HOST CHECK RESULT" hostname="test_host_0" state="UP" ' \
                        'last_state="PENDING" state_type="HARD" last_state_type="HARD" ' \
                        'business_impact="5" last_hard_state_change="[0-9]{10}" output="UP'
-        pattern_out1 = 'event_type="service_check_result" hostname="test_host_0" servicename="test_ok_0" ' \
+        pattern_out1 = 'event_type="SERVICE CHECK RESULT" hostname="test_host_0" servicename="test_ok_0" ' \
                        'state="OK" last_state="PENDING" state_type="HARD" last_state_type="HARD" ' \
                        'business_impact="5" last_hard_state_change="[0-9]{10}" output="OK'
         #import pdb;pdb.set_trace()
-        self.assert_(re.search(pattern_out0, lines[0]) is not None)
-        self.assert_(re.search(pattern_out1, lines[1]) is not None)
+        self.assert_(re.search(pattern_out0, lines[3]) is not None)
+        self.assert_(re.search(pattern_out1, lines[4]) is not None)
 
         # Service 1st alert + check_result
         self.scheduler_loop(1, [[svc, 2, 'BAD']], do_sleep=True, sleep_time=0.1)
         self.update_broker()
         self.raw_socket.hook_tick("DUMMY")
-        output = self.conn_serv.recv(1024)
+        output = self.conn_serv.recv(2048)
         lines = output.splitlines()
         pattern_out0 = 'event_type="SERVICE ALERT" hostname="test_host_0" '\
                        'servicename="test_ok_0" state="CRITICAL" business_impact="5" output="BAD'
-        pattern_out2 = 'event_type="service_check_result" hostname="test_host_0" ' \
+        pattern_out2 = 'event_type="SERVICE CHECK RESULT" hostname="test_host_0" ' \
                        'servicename="test_ok_0" state="CRITICAL" last_state="OK" state_type="SOFT" ' \
                        'last_state_type="HARD" business_impact="5" last_hard_state_change="[0-9]{10}" ' \
                        'output="BAD'
@@ -123,12 +123,12 @@ class RawSocketTemplate(ShinkenTest):
         self.scheduler_loop(1, [[svc, 2, 'BAD']], do_sleep=True, sleep_time=0.1)
         self.update_broker()
         self.raw_socket.hook_tick("DUMMY")
-        output = self.conn_serv.recv(1024)
+        output = self.conn_serv.recv(2048)
         # line0 = service alert, line1 empty, line2=check result, line3 service notif
         lines = output.splitlines()
         pattern_out0 = 'event_type="SERVICE ALERT" hostname="test_host_0" '\
                        'servicename="test_ok_0" state="CRITICAL" business_impact="5" output="BAD'
-        pattern_out2 = 'event_type="service_check_result" hostname="test_host_0" ' \
+        pattern_out2 = 'event_type="SERVICE CHECK RESULT" hostname="test_host_0" ' \
                        'servicename="test_ok_0" state="CRITICAL" last_state="CRITICAL" state_type="HARD" ' \
                        'last_state_type="SOFT" business_impact="5" ' \
                        'last_hard_state_change="[0-9]{10}" output="BAD'
@@ -217,7 +217,7 @@ class RawSocketTestAll(RawSocketTemplate):
         self.raw_socket.hook_tick("DUMMY")
 
         self.conn_serv, _ = self.sock_serv.accept()
-        output = self.conn_serv.recv(1024)
+        output = self.conn_serv.recv(2048)
         pattern_out = 'event_type="SERVICE ALERT" hostname="test_host_0" '\
                       'servicename="test_ok_0" state="CRITICAL" business_impact="5" output="BAD'
         print pattern_out, output
