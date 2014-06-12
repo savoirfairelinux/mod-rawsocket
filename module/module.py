@@ -198,11 +198,11 @@ class RawSocket_broker(BaseModule):
         line = data['log']
 
         patterns = [
-            "^\[[0-9]*\] (HOST|SERVICE) (ALERT):.*;(HARD|SOFT);.*",
-            "^\[[0-9]*\] (HOST|SERVICE) (NOTIFICATION):.*;(ACKNOWLEDGEMENT)?.*",
-            "^\[[0-9]*\] (HOST|SERVICE) (FLAPPING) (ALERT):.*;(STARTED|STOPPED);",
-            "^\[[0-9]*\] (HOST|SERVICE) (DOWNTIME) (ALERT):.*;(STARTED|STOPPED|CANCELLED);",
-            "^\[[0-9]*\] (HOST|SERVICE) (EVENT) (HANDLER):.*(NONE)?.*",
+            "^\[[0-9]{10}\] (HOST|SERVICE) (ALERT):.*;(HARD|SOFT);.*",
+            "^\[[0-9]{10}\] (HOST|SERVICE) (NOTIFICATION):.*;(ACKNOWLEDGEMENT)?.*",
+            "^\[[0-9]{10}\] (HOST|SERVICE) (FLAPPING) (ALERT):.*;(STARTED|STOPPED);",
+            "^\[[0-9]{10}\] (HOST|SERVICE) (DOWNTIME) (ALERT):.*;(STARTED|STOPPED|CANCELLED);",
+            "^\[[0-9]{10}\] (HOST|SERVICE) (EVENT) (HANDLER):.*(NONE)?.*",
             #"EXTERNAL COMMAND: (ADD_HOST_COMMENT|ADD_SVC_COMMENT)",  # FIXME : No timestamp
         ]
 
