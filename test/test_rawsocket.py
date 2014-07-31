@@ -91,7 +91,7 @@ class RawSocketTemplate(ShinkenTest):
         self.scheduler_loop(1, [[svc, 0, 'OK']], do_sleep=True, sleep_time=0.1)
         self.update_broker()
         self.raw_socket.hook_tick("DUMMY")
-        output = self.conn_serv.recv(1024)
+        output = self.conn_serv.recv(2048)
         lines = output.splitlines()
         pattern_out0 = 'event_type="HOST CHECK RESULT" hostname="test_host_0" state="UP" ' \
                        'last_state="PENDING" state_type="HARD" last_state_type="HARD" ' \
@@ -117,7 +117,7 @@ class RawSocketTemplate(ShinkenTest):
                        'output="BAD'
         #import pdb;pdb.set_trace()
         self.assert_(re.search(pattern_out0, lines[0]) is not None)
-        self.assert_(re.search(pattern_out2, lines[2]) is not None)
+        self.assert_(re.search(pattern_out2, lines[1]) is not None)
 
         # Service 2nd alert + notif
         self.scheduler_loop(1, [[svc, 2, 'BAD']], do_sleep=True, sleep_time=0.1)
@@ -138,16 +138,16 @@ class RawSocketTemplate(ShinkenTest):
         #import pdb;pdb.set_trace()
         self.assert_(re.search(pattern_out0, lines[0]) is not None)
         # check result with different type is not filtered :)
-        self.assert_(re.search(pattern_out2, lines[2]))
+        self.assert_(re.search(pattern_out2, lines[1]))
         if mod == "all":
             # notification that is not an ack is filtered
-            self.assert_(re.search(pattern_out3, lines[3]))
+            self.assert_(re.search(pattern_out3, lines[2]))
 
         # Host 1st alert
         self.scheduler_loop(1, [[host, 2, 'BAD']], do_sleep=True, sleep_time=0.1)
         self.update_broker()
         self.raw_socket.hook_tick("DUMMY")
-        output = self.conn_serv.recv(1024)
+        output = self.conn_serv.recv(2048)
         lines = output.splitlines()
         pattern_out0 = 'event_type="HOST ALERT" hostname="test_host_0" '\
                        'state="DOWN" business_impact="5" output="BAD'
@@ -158,12 +158,12 @@ class RawSocketTemplate(ShinkenTest):
         self.scheduler_loop(1, [[host, 2, 'BAD']], do_sleep=True, sleep_time=0.1)
         self.update_broker()
         self.raw_socket.hook_tick("DUMMY")
-        output = self.conn_serv.recv(1024)
+        output = self.conn_serv.recv(2048)
 
         self.scheduler_loop(1, [[host, 2, 'BAD']], do_sleep=True, sleep_time=0.1)
         self.update_broker()
         self.raw_socket.hook_tick("DUMMY")
-        output = self.conn_serv.recv(1024)
+        output = self.conn_serv.recv(2048)
         lines = output.splitlines()
         pattern_out0 = 'event_type="HOST ALERT" hostname="test_host_0" '\
                        'state="DOWN" business_impact="5" output="BAD'
@@ -172,7 +172,7 @@ class RawSocketTemplate(ShinkenTest):
                        'business_impact="5" output="BAD'
         self.assert_(re.search(pattern_out0, lines[0]) is not None)
         if mod == "all":
-            self.assert_(re.search(pattern_out2, lines[3]) is not None)
+            self.assert_(re.search(pattern_out2, lines[2]) is not None)
 
 
 class RawSocketTestAll(RawSocketTemplate):

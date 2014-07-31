@@ -157,10 +157,11 @@ class RawSocket_broker(BaseModule):
         l_params = dict(zip(list_params, data.split(';', max(len(list_params) - 1, 0))))
         # Add event type and business impact in the dict because all lines generated need it
         l_params["event_type"] = event_type
+        l_params["output"] = l_params["output"].strip()  # Clean output
         key_search = l_params["hostname"]
         if "service_description" in l_params:
             key_search += "::" + l_params["service_description"]
-        l_params["business_impact"] = self.dict_business_impact[key_search]
+        l_params["business_impact"] = self.dict_business_impact.get(key_search, 0)
         return t, pattern % l_params
 
     # For log event only : return the event_name associated in the parsing properties
@@ -178,8 +179,7 @@ class RawSocket_broker(BaseModule):
                 t, new_line = self.format_output(line, **self.parsing_properties[name])
                 t = t[1:]
                 formatted = datetime.datetime.fromtimestamp(int(t)).strftime('%Y-%m-%dT%H:%M:%S')
-                tz = str.format('{0:05.2f}', float(time.timezone) / 3600).replace('.', ':')
-                tz = '-' + tz if time.timezone > 0 else '+' + tz
+                tz = self.get_formatted_tz()
                 isodate = formatted + tz
                 hostname = socket.gethostname()
                 self.buffer.append("<0>%s %s %s %s[0]: timestamp=%s %s" %
@@ -268,6 +268,7 @@ class RawSocket_broker(BaseModule):
 
     def manage_initial_host_status_brok(self, b):
         data = b.data
+        data["output"] = data["output"].strip()  # Clean output
         # Remember initial business_impact value
         self.dict_business_impact[data["host_name"]] = data["business_impact"]
         # Send Initial Status
@@ -277,7 +278,7 @@ class RawSocket_broker(BaseModule):
                    % data
         t = time.time()
         formatted = time.strftime('%Y-%m-%dT%H:%M:%S')
-        tz = str.format('{0:+06.2f}', float(time.timezone) / 3600).replace('.', ':')
+        tz = self.get_formatted_tz()
         isodate = formatted + tz
         hostname = socket.gethostname()
         self.buffer.append("<0>%s %s %s %s[0]: timestamp=%d %s" %
@@ -285,6 +286,7 @@ class RawSocket_broker(BaseModule):
 
     def manage_initial_service_status_brok(self, b):
         data = b.data
+        data["output"] = data["output"].strip()  # Clean output
         # Remember initial business_impact value
         key = data["host_name"] + "::" + data["service_description"]
         self.dict_business_impact[key] = data["business_impact"]
@@ -295,7 +297,7 @@ class RawSocket_broker(BaseModule):
                    % data
         t = time.time()
         formatted = time.strftime('%Y-%m-%dT%H:%M:%S')
-        tz = str.format('{0:+06.2f}', float(time.timezone) / 3600).replace('.', ':')
+        tz = self.get_formatted_tz()
         isodate = formatted + tz
         hostname = socket.gethostname()
         self.buffer.append("<0>%s %s %s %s[0]: timestamp=%d %s" %
@@ -310,6 +312,7 @@ class RawSocket_broker(BaseModule):
 
     def manage_host_check_result_brok(self, b):
         data = b.data
+        data["output"] = data["output"].strip()  # Clean output
         if self.data == 'all' \
                 or data['last_state'] != data['state'] \
                 or data['last_state_type'] != data['state_type']:
@@ -323,7 +326,7 @@ class RawSocket_broker(BaseModule):
                        % data
             t = time.time()
             formatted = time.strftime('%Y-%m-%dT%H:%M:%S')
-            tz = str.format('{0:+06.2f}', float(time.timezone) / 3600).replace('.', ':')
+            tz = self.get_formatted_tz()
             isodate = formatted + tz
             hostname = socket.gethostname()
             self.buffer.append("<0>%s %s %s %s[0]: timestamp=%d %s" %
@@ -334,6 +337,7 @@ class RawSocket_broker(BaseModule):
 
     def manage_service_check_result_brok(self, b):
         data = b.data
+        data["output"] = data["output"].strip()  # Clean output
         if self.data == 'all' \
                 or data['last_state'] != data['state'] \
                 or data['last_state_type'] != data['state_type']:
@@ -348,7 +352,7 @@ class RawSocket_broker(BaseModule):
                        % data
             t = time.time()
             formatted = time.strftime('%Y-%m-%dT%H:%M:%S')
-            tz = str.format('{0:+06.2f}', float(time.timezone) / 3600).replace('.', ':')
+            tz = self.get_formatted_tz()
             isodate = formatted + tz
             hostname = socket.gethostname()
             self.buffer.append("<0>%s %s %s %s[0]: timestamp=%d %s" %
@@ -374,3 +378,8 @@ class RawSocket_broker(BaseModule):
 
     def manage_notification_raise_brok(self, b):
         pass
+
+    @staticmethod
+    def get_formatted_tz():
+        tz = str.format('{0:05.2f}', float(time.timezone) / 3600 - time.daylight).replace('.', ':')
+        return  '-' + tz if time.timezone > 0 else '+' + tz
