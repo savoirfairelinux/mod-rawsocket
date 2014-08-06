@@ -1,0 +1,2 @@
+etc/modules/raw-socket.cfg /etc/shinken/shinken-specific/
+module/module.py /usr/lib/python2.7/dist-packages/shinken/modules/

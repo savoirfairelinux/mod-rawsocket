@@ -1,0 +1,15 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@ --with python2 --install-layout=deb,quilt
+
+override_dh_clean:
+	rm -rf ./build
+	rm -rf ./Shinken.egg-info
+	dh_clean
+
+override_dh_install:
+	# INSTALL
+	dh_install
+	mv debian/shinken-module-rawsocket/usr/lib/python2.7/dist-packages/shinken/modules/module.py debian/shinken-module-rawsocket/usr/lib/python2.7/dist-packages/shinken/modules/raw_socket.py
+
