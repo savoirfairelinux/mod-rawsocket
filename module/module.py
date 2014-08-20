@@ -143,6 +143,7 @@ class RawSocket_broker(BaseModule):
     def init(self):
         try:
             self.con = socket.socket()
+            self.con.settimeout(10)
             self.con.connect((self.host, self.port))
         except Exception:
             logger.warning("[RawSocket broker] Failed to connect to host %s and port %d!"
