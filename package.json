@@ -1,7 +1,7 @@
 {
   "name": "raw-socket",
   "types": ["module"],
-  "version": "1.4",
+  "version": "1.5.1",
   "homepage": "http://github.com/savoirfairelinux/mod-rawsocket",
   "author": "Sébastien Coavoux",
   "description": "Export event to a socket in order to generate reports",
