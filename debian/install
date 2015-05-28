@@ -1,0 +1,3 @@
+etc/modules/raw-socket.cfg /etc/shinken/modules/
+module/__init__.py /usr/share/pyshared/shinken/modules/mod-rawsocket/
+module/module.py /usr/share/pyshared/shinken/modules/mod-rawsocket/

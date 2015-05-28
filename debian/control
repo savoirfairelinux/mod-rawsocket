@@ -1,0 +1,22 @@
+Source: shinken-mod-rawsocket
+Maintainer: Thibault Cohen <thibault.cohen@savoirfairelinux.com>
+Section: net
+Priority: extra
+Vcs-Git: git://github.com/savoirfairelinux/mod-rawsocket.git
+Vcs-Browser: https://github.com/savoirfairelinux/mod-rawsocket.git
+Standards-Version: 3.9.5
+XS-Python-Version: >= 2.5, << 3.0
+Build-Depends: python, debhelper (>= 9), quilt
+Homepage: https://github.com/savoirfairelinux/mod-rawsocket.git
+
+Package: shinken-module-rawsocket
+Architecture: any
+Depends: shinken-common (>> 2.0), ${misc:Depends}
+Conflicts: shinken-core
+Recommends: 
+Description:  Flexible monitoring tool - Raw socket module for Poller
+ Raw socket for Poller. This module export data to standard socket (TCP).
+ .
+ Shinken is a new, Nagios compatible monitoring tool, written in Python. The
+ main goal of Shinken is to allow users to have a fully flexible architecture
+ for their monitoring system that can easily scale to large environments.

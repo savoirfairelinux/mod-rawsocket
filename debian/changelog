@@ -1,0 +1,5 @@
+shinken-module-mod-rawsocket (1.5.1-1) unstable; urgency=medium
+
+  * First stable version.
+
+ -- Sebastien Coavoux <sebastien.coavoux@savoirfairelinux.com>  Thu, 28 May 2015 14:27:11 -0400
