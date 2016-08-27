@@ -324,6 +324,7 @@ class RawSocket_broker(BaseModule):
                 or data['last_state_type'] != data['state_type']:
             # get the business_impact previously found and add it to the brok
             data["business_impact"] = self.dict_business_impact[data["host_name"]]
+            # get the in_scheduled_downtime previously found and add it to the brok
             data["in_scheduled_downtime"] = self.dict_in_scheduled_downtime[data["host_name"]]
             new_line = 'event_type="HOST CHECK RESULT" ' \
                        'hostname="%(host_name)s" state="%(state)s" last_state="%(last_state)s" ' \
@@ -351,6 +352,7 @@ class RawSocket_broker(BaseModule):
             # get the business_impact previously found and add it to the brok
             key = data["host_name"] + "::" + data["service_description"]
             data["business_impact"] = self.dict_business_impact[key]
+            # get the in_scheduled_downtime previously found and add it to the brok
             data["in_scheduled_downtime"] = self.dict_in_scheduled_downtime[key]
             new_line = 'event_type="SERVICE CHECK RESULT" hostname="%(host_name)s" ' \
                        'servicename="%(service_description)s" state="%(state)s" last_state="%(last_state)s"' \
@@ -372,12 +374,16 @@ class RawSocket_broker(BaseModule):
     def manage_update_host_status_brok(self, b):
         # Update business_impact value
         self.dict_business_impact[b.data["host_name"]] = b.data["business_impact"]
+        # Update in_scheduled_downtime value
         self.dict_in_scheduled_downtime[b.data["host_name"]] = b.data["in_scheduled_downtime"]
 
     def manage_update_service_status_brok(self, b):
         # Update business_impact value
         key = b.data["host_name"] + "::" + b.data["service_description"]
+        self.dict_business_impact[key] = b.data["business_impact"]
+        # Update in_scheduled_downtime value
         self.dict_in_scheduled_downtime[key] = b.data["in_scheduled_downtime"]
+
 
     def manage_initial_contact_status_brok(self, b):
         pass
