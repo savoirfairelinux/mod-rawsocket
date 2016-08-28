@@ -326,10 +326,8 @@ class RawSocket_broker(BaseModule):
             data["business_impact"] = self.dict_business_impact[data["host_name"]]
             # get the in_scheduled_downtime previously found and add it to the brok
             data["in_scheduled_downtime"] = self.dict_in_scheduled_downtime[data["host_name"]]
-            if data["in_scheduled_downtime"] == 'True'
-            	data["sla_state"] = 'OK'
             new_line = 'event_type="HOST CHECK RESULT" ' \
-                       'hostname="%(host_name)s" state="%(state)s" sla_state="%(sla_state)s" last_state="%(last_state)s" ' \
+                       'hostname="%(host_name)s" state="%(state)s" last_state="%(last_state)s" ' \
                        'state_type="%(state_type)s" last_state_type="%(last_state_type)s" ' \
                        'business_impact="%(business_impact)d" in_scheduled_downtime="%(in_scheduled_downtime)s" ' \
                        'last_hard_state_change="%(last_hard_state_change)s" output="%(output)s"' \
@@ -356,10 +354,8 @@ class RawSocket_broker(BaseModule):
             data["business_impact"] = self.dict_business_impact[key]
             # get the in_scheduled_downtime previously found and add it to the brok
             data["in_scheduled_downtime"] = self.dict_in_scheduled_downtime[key]
-            if data["in_scheduled_downtime"] == 'True'
-            	data["sla_state"] = 'OK'
             new_line = 'event_type="SERVICE CHECK RESULT" hostname="%(host_name)s" ' \
-                       'servicename="%(service_description)s" state="%(state)s" sla_state="%(sla_state)s" last_state="%(last_state)s"' \
+                       'servicename="%(service_description)s" state="%(state)s" last_state="%(last_state)s"' \
                        ' state_type="%(state_type)s" last_state_type="%(last_state_type)s" ' \
                        'business_impact="%(business_impact)d" in_scheduled_downtime="%(in_scheduled_downtime)s" ' \
                        'last_hard_state_change="%(last_hard_state_change)s" output="%(output)s"' \
