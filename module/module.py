@@ -69,6 +69,8 @@ class RawSocket_broker(BaseModule):
         self.ticks = 0
         # Cache for business_impact
         self.dict_business_impact = {}
+        # Cache for in_scheduled_downtime
+        self.dict_in_scheduled_downtime = {}
 
         # Number of lines to delete when the buffer is full
         self.lines_deleted = 30
@@ -163,6 +165,7 @@ class RawSocket_broker(BaseModule):
         if "service_description" in l_params:
             key_search += "::" + l_params["service_description"]
         l_params["business_impact"] = self.dict_business_impact.get(key_search, 0)
+        l_params["in_scheduled_downtime"] = self.dict_in_scheduled_downtime.get(key_search, 0)
         return t, pattern % l_params
 
     # For log event only : return the event_name associated in the parsing properties
@@ -272,6 +275,7 @@ class RawSocket_broker(BaseModule):
         data["output"] = data["output"].strip()  # Clean output
         # Remember initial business_impact value
         self.dict_business_impact[data["host_name"]] = data["business_impact"]
+        self.dict_in_scheduled_downtime[data["host_name"]] = data["in_scheduled_downtime"]
         # Send Initial Status
         new_line = 'event_type="INITIAL HOST STATUS" hostname="%(host_name)s" ' \
                    'state="%(state)s" in_scheduled_downtime="%(in_scheduled_downtime)s" ' \
@@ -291,6 +295,7 @@ class RawSocket_broker(BaseModule):
         # Remember initial business_impact value
         key = data["host_name"] + "::" + data["service_description"]
         self.dict_business_impact[key] = data["business_impact"]
+        self.dict_in_scheduled_downtime[key] = data["in_scheduled_downtime"]
         # Send Initial Status
         new_line = 'event_type="INITIAL SERVICE STATUS" hostname="%(host_name)s" ' \
                    'servicename="%(service_description)s" state="%(state)s" ' \
@@ -319,10 +324,12 @@ class RawSocket_broker(BaseModule):
                 or data['last_state_type'] != data['state_type']:
             # get the business_impact previously found and add it to the brok
             data["business_impact"] = self.dict_business_impact[data["host_name"]]
+            # get the in_scheduled_downtime previously found and add it to the brok
+            data["in_scheduled_downtime"] = self.dict_in_scheduled_downtime[data["host_name"]]
             new_line = 'event_type="HOST CHECK RESULT" ' \
                        'hostname="%(host_name)s" state="%(state)s" last_state="%(last_state)s" ' \
                        'state_type="%(state_type)s" last_state_type="%(last_state_type)s" ' \
-                       'business_impact="%(business_impact)d" ' \
+                       'business_impact="%(business_impact)d" in_scheduled_downtime="%(in_scheduled_downtime)s" ' \
                        'last_hard_state_change="%(last_hard_state_change)s" output="%(output)s"' \
                        % data
             t = time.time()
@@ -345,10 +352,12 @@ class RawSocket_broker(BaseModule):
             # get the business_impact previously found and add it to the brok
             key = data["host_name"] + "::" + data["service_description"]
             data["business_impact"] = self.dict_business_impact[key]
+            # get the in_scheduled_downtime previously found and add it to the brok
+            data["in_scheduled_downtime"] = self.dict_in_scheduled_downtime[key]
             new_line = 'event_type="SERVICE CHECK RESULT" hostname="%(host_name)s" ' \
                        'servicename="%(service_description)s" state="%(state)s" last_state="%(last_state)s"' \
                        ' state_type="%(state_type)s" last_state_type="%(last_state_type)s" ' \
-                       'business_impact="%(business_impact)d" ' \
+                       'business_impact="%(business_impact)d" in_scheduled_downtime="%(in_scheduled_downtime)s" ' \
                        'last_hard_state_change="%(last_hard_state_change)s" output="%(output)s"' \
                        % data
             t = time.time()
@@ -365,11 +374,16 @@ class RawSocket_broker(BaseModule):
     def manage_update_host_status_brok(self, b):
         # Update business_impact value
         self.dict_business_impact[b.data["host_name"]] = b.data["business_impact"]
+        # Update in_scheduled_downtime value
+        self.dict_in_scheduled_downtime[b.data["host_name"]] = b.data["in_scheduled_downtime"]
 
     def manage_update_service_status_brok(self, b):
         # Update business_impact value
         key = b.data["host_name"] + "::" + b.data["service_description"]
         self.dict_business_impact[key] = b.data["business_impact"]
+        # Update in_scheduled_downtime value
+        self.dict_in_scheduled_downtime[key] = b.data["in_scheduled_downtime"]
+
 
     def manage_initial_contact_status_brok(self, b):
         pass
